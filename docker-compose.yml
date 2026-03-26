@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: booklibrary-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Password123
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+
+  api:
+    build:
+      context: .
+      dockerfile: BookLibraryAPI/Dockerfile
+    container_name: booklibrary-api
+    ports:
+      - "5000:8080"
+    depends_on:
+      - mssql
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=mssql;Database=BookLibraryDb;User=sa;Password=YourStrong!Password123;TrustServerCertificate=True
+
+volumes:
+  mssql_data:
